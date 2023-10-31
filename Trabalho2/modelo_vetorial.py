@@ -21,8 +21,8 @@ caminhos = []
 similaridades = {}
 
 
-def calculo_idf(termo, total_docs):
-    return math.log10(total_docs / qtd_de_docs_que_o_termo_aparece[termo])
+def calculo_idf(termo_calculado, total_docs):
+    return math.log10(total_docs / qtd_de_docs_que_o_termo_aparece[termo_calculado])
 
 
 def calculo_tf(frequencia_termo):
@@ -31,20 +31,27 @@ def calculo_tf(frequencia_termo):
     return 1 + math.log10(frequencia_termo)
 
 
-def calculo_similaridade(somatorio_documento, somatorio_consulta):
-    return somatorio_documento / somatorio_consulta
+def somatorio_numerador(lista_pesos_splitada, pesos_consulta):
+    somatorio = 0
+    for lista in lista_pesos_splitada:
+        termo_presente = lista[0][0:-1]
+        somatorio += float(lista[1]) * pesos_consulta[termo_presente]
+    return somatorio
 
 
-def somatorio_numerador(lista_pesos, lista_pesos_consulta):
-    somatorioDocumento = 0
+def somatorio_denominador(lista_pesos, lista_pesos_consulta):
+    somatorio_documento = 0
     for peso in lista_pesos:
-        somatorioDocumento += float(peso)
+        somatorio_documento += float(peso) * float(peso)
+    somatorio_documento = math.sqrt(somatorio_documento)
 
-    somatorioConsulta = 0
+    somatorio_consulta = 0
     for peso in lista_pesos_consulta:
-        somatorioConsulta += float(peso)
+        somatorio_consulta += float(peso) * float(peso)
+    somatorio_consulta = math.sqrt(somatorio_consulta)
 
-    return somatorioDocumento * somatorioConsulta
+    return somatorio_documento * somatorio_consulta
+
 
 with open(f'{base}', 'r') as arq:
     linhas = arq.readlines()
@@ -115,10 +122,15 @@ for peso in pesos_consulta:
     lista_pesos_consulta.append(pesos_consulta[peso])
 
 for doc in pesos:
-    print(doc)
+    #print(pesos[doc], pesos_consulta)
     lista_pesos = []
+    lista_splitada_doc = []
     for lista in pesos[doc]:
         lista_splitada = lista[0].split(" ")
+        lista_splitada_doc.append(lista_splitada)
         lista_pesos.append(lista_splitada[1])
-    numerador = somatorio_numerador(lista_pesos, lista_pesos_consulta)
+    numerador = somatorio_numerador(lista_splitada_doc, pesos_consulta)
+    denominador = somatorio_denominador(lista_pesos, lista_pesos_consulta)
+    print(numerador, denominador)
+    print(numerador / denominador)
 
