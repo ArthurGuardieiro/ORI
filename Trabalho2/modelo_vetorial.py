@@ -131,6 +131,14 @@ for doc in pesos:
         lista_pesos.append(lista_splitada[1])
     numerador = somatorio_numerador(lista_splitada_doc, pesos_consulta)
     denominador = somatorio_denominador(lista_pesos, lista_pesos_consulta)
-    print(numerador, denominador)
-    print(numerador / denominador)
+    similaridade = numerador / denominador
+    if similaridade >= 0.001:
+        similaridades[doc] = similaridade
 
+with open('resposta.txt', 'w') as arqResposta:
+    arqResposta.write(str(len(similaridades)))
+    arqResposta.write('\n')
+    for arquivo in similaridades:
+        #print(arquivo)
+        arqResposta.write(f'{arquivo} {similaridades[arquivo]:.4f}')
+        arqResposta.write('\n')
