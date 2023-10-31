@@ -1,2 +1,2 @@
-arq1.txt: esquerd, 0.22910001000567795  
-arq2.txt: esquerd, 0.17609125905568124  direit, 0.47712125471966244  
+./base_samba/andanca.samba: beth, 0.3010299956639812  
+./base_samba/conselho.samba: conselh, 0.39164905395343774  

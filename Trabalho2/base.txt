@@ -1,3 +1,2 @@
-arq1.txt
-arq2.txt
-arq3.txt
+./base_samba/andanca.samba
+./base_samba/conselho.samba
