@@ -12,6 +12,7 @@ operadores_de_separacao = ["&"]
 
 base = sys.argv[1]
 arquivo_consulta = sys.argv[2]
+indice = {}
 
 qtd_de_docs_que_o_termo_aparece = {}
 pesos = {}
@@ -22,12 +23,11 @@ similaridades = {}
 
 
 def calculo_idf(termo_calculado, total_docs):
+    print(qtd_de_docs_que_o_termo_aparece[termo_calculado])
     return math.log10(total_docs / qtd_de_docs_que_o_termo_aparece[termo_calculado])
 
 
 def calculo_tf(frequencia_termo):
-    if frequencia_termo == 0:
-        return 0
     return 1 + math.log10(frequencia_termo)
 
 
@@ -35,7 +35,8 @@ def somatorio_numerador(lista_pesos_splitada, pesos_consulta):
     somatorio = 0
     for lista in lista_pesos_splitada:
         termo_presente = lista[0][0:-1]
-        somatorio += float(lista[1]) * pesos_consulta[termo_presente]
+        if termo_presente in palavrasASeremBuscadas:
+            somatorio += float(lista[1]) * pesos_consulta[termo_presente]
     return somatorio
 
 
@@ -60,6 +61,30 @@ with open(f'{base}', 'r') as arq:
         caminho = caminho.replace("\n", "")
         caminhos.append(caminho)
 
+posicaoCaminho = 1
+
+for cam in caminhos:
+    with open(cam) as arquivo:
+        text = arquivo.read()
+        text = text.lower()
+        tokens = nltk.wordpunct_tokenize(text)
+        tokens = [p for p in tokens if p.lower() not in stopwords and p not in caracteres_especiais]
+        for palavra in tokens:
+            palavra = extrator.stem(palavra)
+            if palavra not in indice:
+                indice[f'{palavra}'] = []
+                indice[f'{palavra}'].append( [f'{posicaoCaminho}', 1] )
+            elif posicaoCaminho != int(indice[f'{palavra}'][-1][0]) :
+                #print("entrou no posicaocam != indice")
+                #print(posicaoCaminho, indice[f'{palavra}'][-1][0])
+                indice[f'{palavra}'].append([f'{posicaoCaminho}', 1])
+            else:
+                #print(posicaoCaminho, indice[f'{palavra}'][-1][0])
+                indice[f'{palavra}'][-1][1] += 1
+    posicaoCaminho += 1
+
+#print(indice['am'])
+
 quantidade_documentos = len(caminhos)
 
 with open(f'{arquivo_consulta}', 'r') as arqConsulta:
@@ -69,6 +94,7 @@ with open(f'{arquivo_consulta}', 'r') as arqConsulta:
     buscaTokens = [p for p in buscaTokens if
                    p.lower() not in stopwords and p not in caracteres_especiais_fora_do_modelo_vetorial]
 
+
 palavrasASeremBuscadas = [extrator.stem(p) for p in buscaTokens if p not in operadores_de_separacao]
 
 for i in range(len(palavrasASeremBuscadas)):
@@ -77,18 +103,10 @@ for i in range(len(palavrasASeremBuscadas)):
 
 palavrasASeremBuscadas = list(set(palavrasASeremBuscadas))
 
-for cam in caminhos:
-    with open(cam) as arquivo:
-        text = arquivo.read()
-        text = text.lower()
-        tokens = nltk.wordpunct_tokenize(text)
-        tokens = [extrator.stem(p) for p in tokens if p.lower() not in stopwords and p not in caracteres_especiais]
-        for i in range(len(palavrasASeremBuscadas)):
-            if palavrasASeremBuscadas[i] in tokens:
-                if palavrasASeremBuscadas[i] not in qtd_de_docs_que_o_termo_aparece:
-                    qtd_de_docs_que_o_termo_aparece[f'{palavrasASeremBuscadas[i]}'] = 1
-                else:
-                    qtd_de_docs_que_o_termo_aparece[f'{palavrasASeremBuscadas[i]}'] += 1
+for termo in indice:
+    qtd_de_docs_que_o_termo_aparece[termo] = len(indice[termo])
+
+#print(qtd_de_docs_que_o_termo_aparece)
 
 for cam in caminhos:
     with (open(cam) as arquivo):
@@ -96,15 +114,19 @@ for cam in caminhos:
         text = text.lower()
         tokens = nltk.wordpunct_tokenize(text)
         tokens = [extrator.stem(p) for p in tokens if p.lower() not in stopwords and p not in caracteres_especiais]
-        for i in range(len(palavrasASeremBuscadas)):
-            calculo_tf_idf = calculo_tf(tokens.count(palavrasASeremBuscadas[i])) * calculo_idf(
-                palavrasASeremBuscadas[i], quantidade_documentos)
+        #print(tokens)
+        for i in range(len(tokens)):
+
+            calculo_tf_idf = calculo_tf(tokens.count(tokens[i])) * calculo_idf(
+                tokens[i], quantidade_documentos)
+            #print('tf', calculo_tf(tokens.count(tokens[i])))
+            #print('idf', calculo_idf(tokens[i], quantidade_documentos))
             if calculo_tf_idf != 0:
                 if cam not in pesos:
                     pesos[f'{cam}'] = []
-                    pesos[f'{cam}'].append([f'{palavrasASeremBuscadas[i]}, {calculo_tf_idf}'])
+                    pesos[f'{cam}'].append([f'{tokens[i]}, {calculo_tf_idf}'])
                 else:
-                    pesos[f'{cam}'].append([f'{palavrasASeremBuscadas[i]}, {calculo_tf_idf}'])
+                    pesos[f'{cam}'].append([f'{tokens[i]}, {calculo_tf_idf}'])
 
 for termo in frequencias_consulta:
     calculo_tf_idf = calculo_tf(frequencias_consulta[termo]) * calculo_idf(termo, quantidade_documentos)

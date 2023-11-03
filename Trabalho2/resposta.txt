@@ -1,3 +1,2 @@
-2
-./base_samba/andanca.samba 0.7071
-./base_samba/conselho.samba 0.7071
+1
+./base_samba/andanca.samba 0.0945
