@@ -145,7 +145,8 @@ with open('resposta.txt', 'w') as arqResposta:
     arqResposta.write(str(len(similaridades)))
     arqResposta.write('\n')
     for i in range(len(similaridades)):
-        arquivoComMaiorSimilaridade = max(similaridades)
+        arquivoComMaiorSimilaridade = max(similaridades, key=similaridades.get)
+        print(arquivoComMaiorSimilaridade, similaridades[arquivoComMaiorSimilaridade])
         arqResposta.write(f'{arquivoComMaiorSimilaridade} {similaridades[arquivoComMaiorSimilaridade]}')
         arqResposta.write('\n')
         similaridades.pop(arquivoComMaiorSimilaridade)
