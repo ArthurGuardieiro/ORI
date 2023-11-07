@@ -41,6 +41,7 @@ def somatorio_numerador(lista_pesos_splitada, pesos_consulta):
 def somatorio_denominador(lista_pesos, lista_pesos_consulta):
     lista_pesos = [float(x) for x in lista_pesos]
 
+
     somatorio_documento = math.sqrt(sum(x ** 2 for x in lista_pesos))
     somatorio_consulta = math.sqrt(sum(x ** 2 for x in lista_pesos_consulta))
 
@@ -131,13 +132,12 @@ for doc in pesos:
     lista_splitada_doc = []
     for lista in pesos[doc]:
         lista_splitada = lista[0].split(" ")
-        lista_splitada_doc.append(lista_splitada)
-        lista_pesos.append(lista_splitada[1])
+        if lista_splitada not in lista_splitada_doc:
+            lista_splitada_doc.append(lista_splitada)
+            lista_pesos.append(lista_splitada[1])
     numerador = somatorio_numerador(lista_splitada_doc, pesos_consulta)
     denominador = somatorio_denominador(lista_pesos, lista_pesos_consulta)
-    #print(numerador, denominador)
     similaridade = numerador / denominador
-    #print(similaridade)
     if similaridade >= 0.001:
         similaridades[doc] = similaridade
 
@@ -145,5 +145,5 @@ with open('resposta.txt', 'w') as arqResposta:
     arqResposta.write(str(len(similaridades)))
     arqResposta.write('\n')
     for arquivo in similaridades:
-        arqResposta.write(f'{arquivo} {similaridades[arquivo]:.4f}')
+        arqResposta.write(f'{arquivo} {similaridades[arquivo]}')
         arqResposta.write('\n')
