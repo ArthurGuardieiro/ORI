@@ -5,7 +5,6 @@ import sys
 
 extrator = nltk.stem.RSLPStemmer()
 stopwords = nltk.corpus.stopwords.words('portuguese')
-# stopwords.append("pra")
 caracteres_especiais = [" ", ".", "...", ",", "!", "?", "\n", "\x97"]
 caracteres_especiais_fora_do_modelo_vetorial = [" ", ".", "...", ",", "?", "|", "!", "\n", "\x97"]
 operadores_de_separacao = ["&"]
@@ -23,7 +22,6 @@ similaridades = {}
 
 
 def calculo_idf(termo_calculado, total_docs):
-    print(qtd_de_docs_que_o_termo_aparece[termo_calculado])
     return math.log10(total_docs / qtd_de_docs_que_o_termo_aparece[termo_calculado])
 
 
@@ -41,15 +39,10 @@ def somatorio_numerador(lista_pesos_splitada, pesos_consulta):
 
 
 def somatorio_denominador(lista_pesos, lista_pesos_consulta):
-    somatorio_documento = 0
-    for peso in lista_pesos:
-        somatorio_documento += float(peso) * float(peso)
-    somatorio_documento = math.sqrt(somatorio_documento)
+    lista_pesos = [float(x) for x in lista_pesos]
 
-    somatorio_consulta = 0
-    for peso in lista_pesos_consulta:
-        somatorio_consulta += float(peso) * float(peso)
-    somatorio_consulta = math.sqrt(somatorio_consulta)
+    somatorio_documento = math.sqrt(sum(x ** 2 for x in lista_pesos))
+    somatorio_consulta = math.sqrt(sum(x ** 2 for x in lista_pesos_consulta))
 
     return somatorio_documento * somatorio_consulta
 
@@ -75,15 +68,11 @@ for cam in caminhos:
                 indice[f'{palavra}'] = []
                 indice[f'{palavra}'].append( [f'{posicaoCaminho}', 1] )
             elif posicaoCaminho != int(indice[f'{palavra}'][-1][0]) :
-                #print("entrou no posicaocam != indice")
-                #print(posicaoCaminho, indice[f'{palavra}'][-1][0])
                 indice[f'{palavra}'].append([f'{posicaoCaminho}', 1])
             else:
-                #print(posicaoCaminho, indice[f'{palavra}'][-1][0])
                 indice[f'{palavra}'][-1][1] += 1
     posicaoCaminho += 1
 
-#print(indice['am'])
 
 quantidade_documentos = len(caminhos)
 
@@ -106,21 +95,15 @@ palavrasASeremBuscadas = list(set(palavrasASeremBuscadas))
 for termo in indice:
     qtd_de_docs_que_o_termo_aparece[termo] = len(indice[termo])
 
-#print(qtd_de_docs_que_o_termo_aparece)
-
 for cam in caminhos:
     with (open(cam) as arquivo):
         text = arquivo.read()
         text = text.lower()
         tokens = nltk.wordpunct_tokenize(text)
         tokens = [extrator.stem(p) for p in tokens if p.lower() not in stopwords and p not in caracteres_especiais]
-        #print(tokens)
         for i in range(len(tokens)):
-
             calculo_tf_idf = calculo_tf(tokens.count(tokens[i])) * calculo_idf(
                 tokens[i], quantidade_documentos)
-            #print('tf', calculo_tf(tokens.count(tokens[i])))
-            #print('idf', calculo_idf(tokens[i], quantidade_documentos))
             if calculo_tf_idf != 0:
                 if cam not in pesos:
                     pesos[f'{cam}'] = []
@@ -144,7 +127,6 @@ for peso in pesos_consulta:
     lista_pesos_consulta.append(pesos_consulta[peso])
 
 for doc in pesos:
-    #print(pesos[doc], pesos_consulta)
     lista_pesos = []
     lista_splitada_doc = []
     for lista in pesos[doc]:
@@ -153,7 +135,9 @@ for doc in pesos:
         lista_pesos.append(lista_splitada[1])
     numerador = somatorio_numerador(lista_splitada_doc, pesos_consulta)
     denominador = somatorio_denominador(lista_pesos, lista_pesos_consulta)
+    #print(numerador, denominador)
     similaridade = numerador / denominador
+    #print(similaridade)
     if similaridade >= 0.001:
         similaridades[doc] = similaridade
 
@@ -161,6 +145,5 @@ with open('resposta.txt', 'w') as arqResposta:
     arqResposta.write(str(len(similaridades)))
     arqResposta.write('\n')
     for arquivo in similaridades:
-        #print(arquivo)
         arqResposta.write(f'{arquivo} {similaridades[arquivo]:.4f}')
         arqResposta.write('\n')
