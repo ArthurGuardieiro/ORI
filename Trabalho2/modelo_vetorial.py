@@ -144,6 +144,8 @@ for doc in pesos:
 with open('resposta.txt', 'w') as arqResposta:
     arqResposta.write(str(len(similaridades)))
     arqResposta.write('\n')
-    for arquivo in similaridades:
-        arqResposta.write(f'{arquivo} {similaridades[arquivo]}')
+    for i in range(len(similaridades)):
+        arquivoComMaiorSimilaridade = max(similaridades)
+        arqResposta.write(f'{arquivoComMaiorSimilaridade} {similaridades[arquivoComMaiorSimilaridade]}')
         arqResposta.write('\n')
+        similaridades.pop(arquivoComMaiorSimilaridade)
