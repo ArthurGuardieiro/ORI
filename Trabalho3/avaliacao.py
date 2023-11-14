@@ -12,9 +12,11 @@ qtt_queries = int(qtt_queries)
 
 for i in range(1, qtt_queries * 2 + 1):
     if i <= qtt_queries:
-        relevant_documents[i] = lines[i].replace('\n', '')
+        line = lines[i].replace('\n', '')
+        relevant_documents[i] = [int(value) for value in line.split()]
     else:
-        queries[i-qtt_queries] = lines[i].replace('\n', '')
+        line = lines[i].replace('\n', '')
+        queries[i-qtt_queries] = [int(value) for value in line.split()]
 
 print(relevant_documents)
 print(queries)
