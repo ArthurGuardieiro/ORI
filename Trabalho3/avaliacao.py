@@ -5,11 +5,13 @@ relevant_documents = {}
 returned_documents = {}
 revocation_precision = {}
 
-def transformar_em_multiplos_de_10(valor):
+
+def transform_into_multiples_of_10(valor):
     if 0 <= valor <= 100:
         return int((valor // 10) * 10)
     else:
         return valor
+
 
 with open(reference, 'r') as arq:
     lines = arq.readlines()
@@ -34,8 +36,21 @@ for documents in returned_documents:
         if document in relevant_documents[documents]:
             qtt_relevant_documents += 1
             revocation = qtt_relevant_documents / len(relevant_documents[documents]) * 100
-            revocation = transformar_em_multiplos_de_10(revocation)
+            revocation = transform_into_multiples_of_10(revocation)
             precision = qtt_relevant_documents / qtt_documents * 100
             revocation_precision[documents].append([revocation, precision])
+
+print(revocation_precision)
+
+# VARREDURA DE TRÁS PARA FRENTE
+for value in revocation_precision:
+    for i in range(len(revocation_precision[value]) - 1, -1, -1):
+        if i != 0:
+            actual_precision = revocation_precision[value][i][1]
+            next_precision = revocation_precision[value][i-1][1]
+            print(actual_precision, next_precision)
+            if actual_precision > next_precision:
+                print('valor de revocacao maior tem mais precisão', revocation_precision[value][i-1])
+                revocation_precision[value][i-1][1] = actual_precision
 
 print(revocation_precision)
