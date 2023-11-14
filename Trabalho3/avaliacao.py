@@ -30,7 +30,10 @@ for i in range(1, qtt_queries * 2 + 1):
 for documents in returned_documents:
     qtt_relevant_documents = 0
     qtt_documents = 0
-    revocation_precision[documents] = []
+    revocation_precision[documents] = {}
+    for i in range(0, 101, 10):
+        revocation_precision[documents][i] = 0
+        #print(revocation_precision[documents])
     for document in returned_documents[documents]:
         qtt_documents += 1
         if document in relevant_documents[documents]:
@@ -38,19 +41,20 @@ for documents in returned_documents:
             revocation = qtt_relevant_documents / len(relevant_documents[documents]) * 100
             revocation = transform_into_multiples_of_10(revocation)
             precision = qtt_relevant_documents / qtt_documents * 100
-            revocation_precision[documents].append([revocation, precision])
+            revocation_precision[documents][revocation] = precision
 
 print(revocation_precision)
 
 # VARREDURA DE TRÁS PARA FRENTE
 for value in revocation_precision:
-    for i in range(len(revocation_precision[value]) - 1, -1, -1):
+    for i in range(100, -1, -10):
+        #print(revocation_precision[value][i], i)
         if i != 0:
-            actual_precision = revocation_precision[value][i][1]
-            next_precision = revocation_precision[value][i-1][1]
-            print(actual_precision, next_precision)
+            actual_precision = revocation_precision[value][i]
+            next_precision = revocation_precision[value][i-10]
+            #print(actual_precision, next_precision)
             if actual_precision > next_precision:
-                print('valor de revocacao maior tem mais precisão', revocation_precision[value][i-1])
-                revocation_precision[value][i-1][1] = actual_precision
+                #print('valor de revocacao maior tem mais precisão', revocation_precision[value][i-10])
+                revocation_precision[value][i-10] = actual_precision
 
 print(revocation_precision)
