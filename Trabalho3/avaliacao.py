@@ -4,6 +4,7 @@ reference = sys.argv[1]
 relevant_documents = {}
 returned_documents = {}
 revocation_precision = {}
+average_revocation_precision = {}
 
 
 def transform_into_multiples_of_10(valor):
@@ -43,7 +44,7 @@ for documents in returned_documents:
             precision = qtt_relevant_documents / qtt_documents * 100
             revocation_precision[documents][revocation] = precision
 
-print(revocation_precision)
+#print(revocation_precision)
 
 # VARREDURA DE TRÁS PARA FRENTE
 for value in revocation_precision:
@@ -58,3 +59,20 @@ for value in revocation_precision:
                 revocation_precision[value][i-10] = actual_precision
 
 print(revocation_precision)
+for i in range(0, 101, 10):
+    average_revocation_precision[i] = 0
+
+for dct in revocation_precision:
+    for key in revocation_precision[dct]:
+        print(key, revocation_precision[dct][key])
+        average_revocation_precision[key] += revocation_precision[dct][key]
+
+print(average_revocation_precision)
+for key in average_revocation_precision:
+    average_revocation_precision[key] /= qtt_queries
+
+print(average_revocation_precision)
+
+with open('media.txt', 'w') as arq:
+    for i in average_revocation_precision:
+        arq.write(f'{average_revocation_precision[i]/100:.2f} ')
