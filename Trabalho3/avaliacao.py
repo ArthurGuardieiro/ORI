@@ -1,4 +1,5 @@
 import sys
+import matplotlib as plt
 
 reference = sys.argv[1]
 relevant_documents = {}
@@ -34,7 +35,6 @@ for documents in returned_documents:
     revocation_precision[documents] = {}
     for i in range(0, 101, 10):
         revocation_precision[documents][i] = 0
-        #print(revocation_precision[documents])
     for document in returned_documents[documents]:
         qtt_documents += 1
         if document in relevant_documents[documents]:
@@ -44,34 +44,26 @@ for documents in returned_documents:
             precision = qtt_relevant_documents / qtt_documents * 100
             revocation_precision[documents][revocation] = precision
 
-#print(revocation_precision)
 
 # VARREDURA DE TRÁS PARA FRENTE
 for value in revocation_precision:
     for i in range(100, -1, -10):
-        #print(revocation_precision[value][i], i)
         if i != 0:
             actual_precision = revocation_precision[value][i]
             next_precision = revocation_precision[value][i-10]
-            #print(actual_precision, next_precision)
             if actual_precision > next_precision:
-                #print('valor de revocacao maior tem mais precisão', revocation_precision[value][i-10])
                 revocation_precision[value][i-10] = actual_precision
 
-print(revocation_precision)
 for i in range(0, 101, 10):
     average_revocation_precision[i] = 0
 
 for dct in revocation_precision:
     for key in revocation_precision[dct]:
-        print(key, revocation_precision[dct][key])
         average_revocation_precision[key] += revocation_precision[dct][key]
 
-print(average_revocation_precision)
 for key in average_revocation_precision:
     average_revocation_precision[key] /= qtt_queries
 
-print(average_revocation_precision)
 
 with open('media.txt', 'w') as arq:
     for i in average_revocation_precision:
