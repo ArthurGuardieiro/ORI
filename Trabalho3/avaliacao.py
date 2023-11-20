@@ -1,5 +1,5 @@
 import sys
-import matplotlib as plt
+import matplotlib.pyplot as plt
 
 reference = sys.argv[1]
 relevant_documents = {}
@@ -68,3 +68,19 @@ for key in average_revocation_precision:
 with open('media.txt', 'w') as arq:
     for i in average_revocation_precision:
         arq.write(f'{average_revocation_precision[i]/100:.2f} ')
+
+x = [0, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100]
+for value in revocation_precision:
+    y = []
+    for key in revocation_precision[value]:
+        y.append(revocation_precision[value][key])
+    plt.plot(x, y)
+    plt.title(f'Gráfico consulta {value}')
+    plt.show()
+
+y = []
+for value in average_revocation_precision:
+    y.append(average_revocation_precision[value])
+plt.plot(x, y)
+plt.title('Gráfico médias')
+plt.show()
